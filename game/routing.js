@@ -16,17 +16,17 @@ module.exports = function routing (dispatch, bubbles) {
 
 function shootBubble(angle, shotBubbleColor, bubbles){
   const columnStepSize = angle / 45;
-  let currentColumn = 5 + columnStepSize; 
+  let currentColumn = 5.5 - columnStepSize;
   const startingRow = 8;
 
   // Go through the rows and go a column to the left or right
   for(let row=startingRow; row>=0; row--){
     currentColumn += columnStepSize;
-    const roundedColumn = Math.floor(currentColumn + (angle < 0))
+    const roundedColumn = Math.floor(currentColumn)
     if(roundedColumn < 0 || roundedColumn > 10){
       break; //if bubble gets out of the screen break from loop
     }
-    console.log('row and column: ', row, roundedColumn)
+    console.log('row and column: ', row, currentColumn, roundedColumn)
 
     // Check if it hits a ball
     const hitBubble = bubbles[row][roundedColumn];
@@ -43,6 +43,8 @@ function shootBubble(angle, shotBubbleColor, bubbles){
 function compareColors(hitBubbleColor, shotBubbleColor, row, column, bubbles){
   if(hitBubbleColor === shotBubbleColor){
     bubbles[row][column].color = null;
+  } else {
+
   }
 }
 
