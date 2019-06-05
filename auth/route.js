@@ -20,24 +20,51 @@ router.get("/",(req,res)=>{
     email: req.body.email,
     password: bcrypt.hashSync(req.body.password,10 )
   }
-  User
-  .create(newUser)
-  .then(user => {
-    res.status(201).json(user)
+
+  User.findOne({
+    where: {
+      email: newUser.email
+    }
+  }).then(entity => {
+       if(entity){
+          res.json({err:'User with that email does not exist'})
+
+       }else{
+
+          User
+          .create(newUser)
+          .then(user => {
+            res.status(201).json(user)
+          })
+          .catch(error => next(error))
+           }
+
   })
-  .catch(error => next(error))
+
+
+
+
+
 
 })
 /////////////////////////////////////////////
 //login
 
+let player=[]
+
+
 router.post('/logins',(req,res,next)=>{
+
+
 
   const email=req.body.email
   const password=req.body.password
 
   if(!email|| !password){
-      req.status(400).send({Message: 'Please supply a valid email and password'})
+      res.send({
+        status:0,
+        Message: 'Please supply a valid email and password'
+      })
   }else{
       User.findOne({
         where: {
@@ -45,22 +72,26 @@ router.post('/logins',(req,res,next)=>{
         }
       }).then(entity => {
         if (!entity) {
-          res.status(400).json({
+          res.json({
+            status:0,
             message: 'User with that email does not exist'
           })
           return;
         }       
         if(bcrypt.compareSync(req.body.password, entity.password)) {       
           res.json({
-            jwt: toJWT({ userId: entity.id })
+            status:1,
+            message:"successful",  
+            user_id:entity.id
           })
+          player.push(entity)
         }
         else {
-          res.status(400).send({
+          res.json({
+            status:0,
             message: 'Password was incorrect'
           })
-       }
-  
+       }  
 
       })
   }
