@@ -15,6 +15,9 @@ module.exports = function routing (dispatch, bubbles) {
 }
 
 function shootBubble(angle, shotBubbleColor, bubbles){
+  let prevRow;
+  let prevColumn;
+
   const columnStepSize = angle / 45;
   let currentColumn = 5.5 - columnStepSize;
   const startingRow = 8;
@@ -34,17 +37,24 @@ function shootBubble(angle, shotBubbleColor, bubbles){
 
     if(hitBubbleColor !== null){
       console.log(shotBubbleColor, 'hits: ', hitBubbleColor);
-      compareColors(hitBubbleColor, shotBubbleColor, row, roundedColumn, bubbles)
+      compareColors(hitBubbleColor, shotBubbleColor, row, roundedColumn, bubbles, prevRow, prevColumn)
       break;
     }
+
+    prevRow = row;
+    prevColumn = roundedColumn;
   }
 }
 
-function compareColors(hitBubbleColor, shotBubbleColor, row, column, bubbles){
+function compareColors(hitBubbleColor, shotBubbleColor, row, column, bubbles, prevRow, prevColumn){
   if(hitBubbleColor === shotBubbleColor){
     bubbles[row][column].color = null;
+    // deleteNeightborColors(shotBubbleColor, row, column, bubbles);
   } else {
-    bubbles[row+1][column].color = shotBubbleColor;
+    if(prevRow === undefined || prevColumn === undefined){
+      return;
+    }
+    bubbles[prevRow][prevColumn].color = shotBubbleColor;
   }
 }
 
@@ -52,4 +62,10 @@ function pickNewBubbleColor(bubble){
   const allColors = ['blue', 'red', 'purple', 'green'];
   const randomColor = allColors[Math.floor(Math.random() * 4)];
   bubble.color = randomColor;
+}
+
+function deleteNeightborColors(shotBubbleColor, row, column, bubbles){
+  for(let i=row; i>row; i++){
+
+  }
 }
