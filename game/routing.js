@@ -44,7 +44,7 @@ function compareColors(hitBubbleColor, shotBubbleColor, row, column, bubbles){
   if(hitBubbleColor === shotBubbleColor){
     bubbles[row][column].color = null;
   } else {
-
+    bubbles[row+1][column].color = shotBubbleColor;
   }
 }
 
