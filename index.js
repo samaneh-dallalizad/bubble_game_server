@@ -1,7 +1,8 @@
 const express=require("express")
-const socketIo = require('socket.io')
 const bodyParser = require('body-parser')
 const app = express()
+const http = require('http').Server(app);
+const socketIo = require('socket.io')(http)
 const cors = require('cors')
 const dispatcherPlayer = require('./auth/dispatcherPlayer')
 const dispatcherPlayers = require('./auth/dispatcherPlayers')
