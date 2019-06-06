@@ -7,7 +7,7 @@ module.exports = function routing (dispatch, bubbles) {
     shootBubble(angle, shotBubbleColor, bubbles.table)
     pickNewBubbleColor(bubbles.bubbleToShoot)
     dispatch(bubbles)
-    response.status(201).send(hitsCopy)
+    response.status(201).end()
   })
 }
 
@@ -16,19 +16,19 @@ function shootBubble(angle, shotBubbleColor, bubbles){
   let prevColumn;
 
   const radians = angle * (Math.PI / 180);
-  const columnStepSize = Math.sin(radians) / Math.cos(radians)
+  const columnStepSize = Math.atan(radians);
   let currentColumn = 5.5 + columnStepSize;
   const startingRow = 8;
 
   // Go through the rows and go a column to the left or right
   for(let row=startingRow; row>=0; row--){
+    hexagonalCorrection = row % 2 * columnStepSize;
     currentColumn += columnStepSize;
-    const roundedColumn = Math.floor(currentColumn)
+    const roundedColumn = Math.floor(currentColumn )
     if(roundedColumn < 0 || roundedColumn > 10){
       break; //if bubble gets out of the screen break from loop
     }
-    console.log('row and column: ', row, currentColumn, roundedColumn)
-    hits.push({row: row, column: roundedColumn})
+    console.log('row and column: ', row, currentColumn, roundedColumn, hexagonalCorrection)
 
     // Check if it hits a ball
     const hitBubble = bubbles[row][roundedColumn];
