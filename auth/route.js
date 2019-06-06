@@ -6,7 +6,7 @@ const {toJWT} = require('./jwt')
 const router = new Router()
 
 function addPlayers(dispatch, gameDummyDatabase){
-  return router.get("/",(req,res)=>{
+  return router.get("/",(req,res, next)=>{
     User.findAll()
     .then(response => {
       res.json(response)
