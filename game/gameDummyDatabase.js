@@ -117,5 +117,19 @@ module.exports = gameDummyDatabase = {
       {color: null}
     ]
   ],
-  bubbleToShoot: {color: 'red'}
+  bubbleToShoot: {color: 'red'},
+  player: [
+    {
+      id: 1,
+      name: 'Samaneh',
+      email: 'samaneh@gmail.com',
+      password: 'secret'
+    },
+    {
+      id: 2,
+      name: 'Dave',
+      email: 'dave@gmail.com',
+      password: 'secret2'
+    },
+  ]
 }
