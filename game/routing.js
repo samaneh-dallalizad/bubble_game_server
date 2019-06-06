@@ -3,14 +3,16 @@ const gameRouter = new Router()
 
 // gameRouter.post('/shoot', function(req, res){
 // })
-
+let hits = []
 module.exports = function routing (dispatch, bubbles) {
   return gameRouter.post('/shoot', (request, response) => {
     const { angle, shotBubbleColor } = request.body
     shootBubble(angle, shotBubbleColor, bubbles.table)
     pickNewBubbleColor(bubbles.bubbleToShoot)
     dispatch(bubbles)
-    response.status(201).send(bubbles)
+    const hitsCopy = [...hits]
+    hits = []
+    response.status(201).send(hitsCopy)
   })
 }
 
@@ -19,7 +21,7 @@ function shootBubble(angle, shotBubbleColor, bubbles){
   let prevColumn;
 
   const columnStepSize = angle / 45;
-  let currentColumn = 5.5 - columnStepSize;
+  let currentColumn = 5.5 + columnStepSize;
   const startingRow = 8;
 
   // Go through the rows and go a column to the left or right
@@ -30,6 +32,7 @@ function shootBubble(angle, shotBubbleColor, bubbles){
       break; //if bubble gets out of the screen break from loop
     }
     console.log('row and column: ', row, currentColumn, roundedColumn)
+    hits.push({row: row, column: roundedColumn})
 
     // Check if it hits a ball
     const hitBubble = bubbles[row][roundedColumn];
@@ -49,11 +52,14 @@ function shootBubble(angle, shotBubbleColor, bubbles){
 function compareColors(hitBubbleColor, shotBubbleColor, row, column, bubbles, prevRow, prevColumn){
   if(hitBubbleColor === shotBubbleColor){
     bubbles[row][column].color = null;
+    console.log('hits the same color')
     // deleteNeightborColors(shotBubbleColor, row, column, bubbles);
   } else {
+    console.log('hits a different color')
     if(prevRow === undefined || prevColumn === undefined){
       return;
     }
+    console.log('prev', prevRow, prevColumn)
     bubbles[prevRow][prevColumn].color = shotBubbleColor;
   }
 }

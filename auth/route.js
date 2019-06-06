@@ -10,8 +10,7 @@ function addPlayers(dispatch, gameDummyDatabase){
     User.findAll()
     .then(response => {
       res.json(response)
-      console.log(response.users)
-      gameDummyDatabase.player.push(response.dataValues)
+      gameDummyDatabase.players = response
       dispatch(gameDummyDatabase)
     })
     .catch(error => next(error))
