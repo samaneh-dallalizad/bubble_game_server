@@ -16,15 +16,15 @@ function shootBubble(angle, shotBubbleColor, bubbles){
   let prevColumn;
 
   const radians = angle * (Math.PI / 180);
-  const columnStepSize = Math.atan(radians);
+  const columnStepSize = Math.sin(radians) / Math.cos(radians)
   let currentColumn = 5.5 + columnStepSize;
   const startingRow = 8;
 
   // Go through the rows and go a column to the left or right
   for(let row=startingRow; row>=0; row--){
-    hexagonalCorrection = row % 2 * columnStepSize;
+    hexagonalCorrection = row % 2 * -0.5;
     currentColumn += columnStepSize;
-    const roundedColumn = Math.floor(currentColumn )
+    const roundedColumn = Math.floor(currentColumn + hexagonalCorrection)
     if(roundedColumn < 0 || roundedColumn > 10){
       break; //if bubble gets out of the screen break from loop
     }
