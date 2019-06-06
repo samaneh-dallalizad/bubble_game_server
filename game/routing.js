@@ -1,17 +1,12 @@
 const { Router } = require('express')
 const gameRouter = new Router()
 
-// gameRouter.post('/shoot', function(req, res){
-// })
-let hits = []
 module.exports = function routing (dispatch, bubbles) {
   return gameRouter.post('/shoot', (request, response) => {
     const { angle, shotBubbleColor } = request.body
     shootBubble(angle, shotBubbleColor, bubbles.table)
     pickNewBubbleColor(bubbles.bubbleToShoot)
     dispatch(bubbles)
-    const hitsCopy = [...hits]
-    hits = []
     response.status(201).send(hitsCopy)
   })
 }
@@ -20,7 +15,8 @@ function shootBubble(angle, shotBubbleColor, bubbles){
   let prevRow;
   let prevColumn;
 
-  const columnStepSize = angle / 45;
+  const radians = angle * (Math.PI / 180);
+  const columnStepSize = Math.sin(radians) / Math.cos(radians)
   let currentColumn = 5.5 + columnStepSize;
   const startingRow = 8;
 
