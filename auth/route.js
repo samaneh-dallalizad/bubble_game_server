@@ -5,11 +5,17 @@ const auth=require('./middleware')
 const {toJWT} = require('./jwt')
 const router = new Router()
 
-router.get("/",(req,res)=>{
-  User.findAll().then(response => res.json(response))
-  .catch(error => next(error))
-})
-
+function addPlayers(dispatch, gameDummyDatabase){
+  return router.get("/",(req,res)=>{
+    User.findAll()
+    .then(response => {
+      res.json(response)
+      gameDummyDatabase.player.push(response.body)
+      dispatch(gameDummyDatabase)
+    })
+    .catch(error => next(error))
+  })
+}
 
 ///////////////////////////////////////////
 //signin add new user 
@@ -49,14 +55,8 @@ router.get("/",(req,res)=>{
 })
 /////////////////////////////////////////////
 //login
-
-let player=[]
-
-
-router.post('/logins',(req,res,next)=>{
-
-
-
+function addPlayer(dispatch, gameDummyDatabase){
+  return router.post('/logins',(req,res,next)=>{
   const email=req.body.email
   const password=req.body.password
 
@@ -65,7 +65,8 @@ router.post('/logins',(req,res,next)=>{
         status:0,
         Message: 'Please supply a valid email and password'
       })
-  }else{
+  }
+  else{
       User.findOne({
         where: {
           email: req.body.email
@@ -84,7 +85,8 @@ router.post('/logins',(req,res,next)=>{
             message:"successful",  
             user_id:entity.id
           })
-          player.push(entity)
+          gameDummyDatabase.player.push(entity.dataValues)
+          dispatch(gameDummyDatabase)
         }
         else {
           res.json({
@@ -92,17 +94,9 @@ router.post('/logins',(req,res,next)=>{
             message: 'Password was incorrect'
           })
        }  
-
       })
-  }
+    }
+  })
+}
 
-})
-
-// router.get('/logout', auth, (req, res) => {
-//   res.json({
-//     message: `Thanks for visiting the  ${req.user.email}.`,
-//   })
-// })
-
-
-module.exports = router
+module.exports = {router, addPlayer, addPlayers}
