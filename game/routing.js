@@ -16,8 +16,8 @@ function shootBubble(angle, shotBubbleColor, bubbles){
   let prevColumn;
 
   const radians = angle * (Math.PI / 180);
-  const columnStepSize = Math.atan(radians)
-  let currentColumn = 5.5 + columnStepSize + columnStepSize;
+  const columnStepSize = Math.sin(radians) / Math.cos(radians)
+  let currentColumn = 5.5 + columnStepSize;
   const startingRow = 8;
 
   // Go through the rows and go a column to the left or right
