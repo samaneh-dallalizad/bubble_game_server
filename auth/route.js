@@ -44,13 +44,7 @@ function addPlayers(dispatch, gameDummyDatabase){
           })
           .catch(error => next(error))
            }
-
   })
-
-
-
-
-
 
 })
 /////////////////////////////////////////////
