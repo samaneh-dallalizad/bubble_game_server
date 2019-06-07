@@ -1,18 +1,23 @@
 const { Router } = require('express')
 const gameRouter = new Router()
 
-// gameRouter.post('/shoot', function(req, res){
-// })
-let hits = []
+const searchOffsets = [
+  [0, -1],
+  [-1, -1],
+  [-1, 0],
+  [0, 1],
+  [1, 0],
+  [1, -1]
+];
+let matches = [];
+
 module.exports = function routing (dispatch, bubbles) {
   return gameRouter.post('/shoot', (request, response) => {
     const { angle, shotBubbleColor } = request.body
     shootBubble(angle, shotBubbleColor, bubbles.table)
     pickNewBubbleColor(bubbles.bubbleToShoot)
     dispatch(bubbles)
-    const hitsCopy = [...hits]
-    hits = []
-    response.status(201).send(hitsCopy)
+    response.status(201).end()
   })
 }
 
@@ -20,19 +25,20 @@ function shootBubble(angle, shotBubbleColor, bubbles){
   let prevRow;
   let prevColumn;
 
-  const columnStepSize = angle / 45;
+  const radians = angle * (Math.PI / 180);
+  const columnStepSize = Math.sin(radians) / Math.cos(radians)
   let currentColumn = 5.5 + columnStepSize;
   const startingRow = 8;
 
   // Go through the rows and go a column to the left or right
   for(let row=startingRow; row>=0; row--){
+    hexagonalCorrection = row % 2 * -0.5;
     currentColumn += columnStepSize;
-    const roundedColumn = Math.floor(currentColumn)
+    const roundedColumn = Math.floor(currentColumn + hexagonalCorrection)
     if(roundedColumn < 0 || roundedColumn > 10){
       break; //if bubble gets out of the screen break from loop
     }
-    console.log('row and column: ', row, currentColumn, roundedColumn)
-    hits.push({row: row, column: roundedColumn})
+    console.log('row and column: ', row, currentColumn, roundedColumn, hexagonalCorrection)
 
     // Check if it hits a ball
     const hitBubble = bubbles[row][roundedColumn];
@@ -40,7 +46,11 @@ function shootBubble(angle, shotBubbleColor, bubbles){
 
     if(hitBubbleColor !== null){
       console.log(shotBubbleColor, 'hits: ', hitBubbleColor);
-      compareColors(hitBubbleColor, shotBubbleColor, row, roundedColumn, bubbles, prevRow, prevColumn)
+      bubbles[prevRow][prevColumn].color = shotBubbleColor;
+      compareNeighbors(shotBubbleColor, prevRow, prevColumn, bubbles);
+      const playerScore = matches.length * 100;
+      console.log('userScore: ', playerScore);
+      matches.length = 0; 
       break;
     }
 
@@ -49,18 +59,31 @@ function shootBubble(angle, shotBubbleColor, bubbles){
   }
 }
 
-function compareColors(hitBubbleColor, shotBubbleColor, row, column, bubbles, prevRow, prevColumn){
-  if(hitBubbleColor === shotBubbleColor){
-    bubbles[row][column].color = null;
-    console.log('hits the same color')
-    // deleteNeightborColors(shotBubbleColor, row, column, bubbles);
-  } else {
-    console.log('hits a different color')
-    if(prevRow === undefined || prevColumn === undefined){
+function compareNeighbors(shotColor, rowHit, columnHit, bubbles){
+  searchOffsets.map(offset => {
+    const [offsetRow, offsetColumn] = offset;
+    const neighborRow = rowHit + offsetRow;
+    const neighborColumn = columnHit + offsetColumn;
+    if(neighborRow < 0 || neighborRow > 10 || neighborColumn < 0 || neighborColumn > 10){
       return;
     }
-    console.log('prev', prevRow, prevColumn)
-    bubbles[prevRow][prevColumn].color = shotBubbleColor;
+
+    const neighborColor = bubbles[neighborRow][neighborColumn].color;
+    if(neighborColor === shotColor){
+      const duplicate = matches.some(match => {
+        return match[0] === neighborRow && match[1] === neighborColumn
+      })
+      if(!duplicate){
+        matches.push([neighborRow, neighborColumn]);
+        compareNeighbors(shotColor, neighborRow, neighborColumn, bubbles);
+      }
+    }
+  })
+  if(matches.length > 1){
+    bubbles[rowHit][columnHit].color = null;
+    matches.forEach(match => {
+      bubbles[match[0]][match[1]].color = null;
+    })
   }
 }
 
@@ -68,10 +91,4 @@ function pickNewBubbleColor(bubble){
   const allColors = ['blue', 'red', 'purple', 'green'];
   const randomColor = allColors[Math.floor(Math.random() * 4)];
   bubble.color = randomColor;
-}
-
-function deleteNeightborColors(shotBubbleColor, row, column, bubbles){
-  for(let i=row; i>row; i++){
-
-  }
 }
