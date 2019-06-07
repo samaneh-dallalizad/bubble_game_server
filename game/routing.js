@@ -53,6 +53,7 @@ function shootBubble(angle, shotBubbleColor, bubbles){
     }
     if(row === 0 && hitBubbleColor === null){
       removeNeighbors(shotBubbleColor, row, roundedColumn, bubbles);
+      break;
     }
 
     prevRow = row;

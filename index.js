@@ -5,7 +5,8 @@ const app = express()
 const cors = require('cors')
 const dispatcherPlayer = require('./auth/dispatcherPlayer')
 const dispatcherPlayers = require('./auth/dispatcherPlayers')
-const {router, addPlayer, addPlayers ,pushPlayers} = require('./auth/route')
+const dispatcherEndgame = require('./auth/dispatcherEndgame')
+const {router, addPlayer, resetDatabase ,pushPlayers} = require('./auth/route')
 const dispatcher = require('./game/dispatcher')
 const routing = require('./game/routing')
 const gameDummyDatabase = require('./game/gameDummyDatabase')
@@ -22,17 +23,16 @@ const io = socketIo.listen(server)
 const dispatchPlayer = dispatcherPlayer(io)
 const playerRouter = addPlayer(dispatchPlayer, gameDummyDatabase)
 
-// const dispatchPlayers = dispatcherPlayers(io)
-// const playersRouter = addPlayers(dispatchPlayers, gameDummyDatabase)
-
-
 const dispatchPlayers = dispatcherPlayers(io)
 const playersRouter = pushPlayers(dispatchPlayers, gameDummyDatabase)
+
+const dispatchEndgame = dispatcherEndgame(io)
+const endgameRouter = resetDatabase(dispatchEndgame)
 
 // gameRouter
 const dispatch = dispatcher(io)
 const gameRouter = routing(dispatch, gameDummyDatabase)
-app.use(gameRouter, playerRouter, playersRouter, router)
+app.use(gameRouter, playerRouter, playersRouter, endgameRouter, router)
 
 io.on('connection', client => {
   console.log('client.id test: ', client.id)

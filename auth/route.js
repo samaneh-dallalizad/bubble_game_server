@@ -60,6 +60,15 @@ function pushPlayers(dispatch, gameDummyDatabase){
 
 }
 
+function resetDatabase(dispatch, gameDummyDatabase){
+  return router.post('/endgame', (req, res, next) => { 
+    console.log(res.body)
+    gameDummyDatabase = res.body;
+    dispatch(gameDummyDatabase)
+    res.status(300).end()
+  })  
+}
+
 ///////////////////////////////////////////
 //signin add new user 
  router.post('/users', (req, res, next) => { 
@@ -136,4 +145,4 @@ function addPlayer(dispatch, gameDummyDatabase){
   })
 }
 
-module.exports = {router, addPlayer, addPlayers ,pushPlayers}
+module.exports = {router, addPlayer, addPlayers ,pushPlayers, resetDatabase}
