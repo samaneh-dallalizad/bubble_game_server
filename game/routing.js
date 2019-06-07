@@ -48,7 +48,9 @@ function shootBubble(angle, shotBubbleColor, bubbles){
       console.log(shotBubbleColor, 'hits: ', hitBubbleColor);
       bubbles[prevRow][prevColumn].color = shotBubbleColor;
       compareNeighbors(shotBubbleColor, prevRow, prevColumn, bubbles);
-      matches.length = 0;
+      const playerScore = matches.length * 100;
+      console.log('userScore: ', playerScore);
+      matches.length = 0; 
       break;
     }
 
@@ -67,7 +69,6 @@ function compareNeighbors(shotColor, rowHit, columnHit, bubbles){
     }
 
     const neighborColor = bubbles[neighborRow][neighborColumn].color;
-    console.log(neighborRow, neighborColumn, neighborColor)
     if(neighborColor === shotColor){
       const duplicate = matches.some(match => {
         return match[0] === neighborRow && match[1] === neighborColumn
