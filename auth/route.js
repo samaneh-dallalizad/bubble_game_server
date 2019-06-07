@@ -10,11 +10,54 @@ function addPlayers(dispatch, gameDummyDatabase){
     User.findAll()
     .then(response => {
       res.json(response)
-      gameDummyDatabase.players = response
-      dispatch(gameDummyDatabase)
+     // gameDummyDatabase.players = response
+     // dispatch(gameDummyDatabase)
     })
     .catch(error => next(error))
   })
+}
+
+
+///////////////////////////////////////////
+//add new player 
+function pushPlayers(dispatch, gameDummyDatabase){ 
+
+
+    return router.post('/pushPlayers', (req, res, next) => {   
+           
+        const userid=req.body.id
+        //console.log('userId:', userid)
+        if(userid){
+          User.findOne({
+            where: { id: userid }
+
+          }).then(entity =>{
+            if(!entity){
+              res.json({msg:'User  does not exist'})
+
+          }else{
+            const id=parseInt(userid)
+            const exist = gameDummyDatabase.players.filter(player=>player.id===id)        
+              console.log(exist)
+              if(exist.length===0){
+                console.log("ok you can push")
+                  gameDummyDatabase.players.push(entity)
+                dispatch(gameDummyDatabase)
+                res.json({msg:'ok you can push'})
+              }else{
+                console.log("no you cant push ")
+                res.json({msg:"no you cant push "})
+              }
+
+          
+            
+          }
+
+          })
+        }    
+        
+    })
+
 }
 
 ///////////////////////////////////////////
@@ -44,13 +87,7 @@ function addPlayers(dispatch, gameDummyDatabase){
           })
           .catch(error => next(error))
            }
-
   })
-
-
-
-
-
 
 })
 /////////////////////////////////////////////
@@ -99,4 +136,4 @@ function addPlayer(dispatch, gameDummyDatabase){
   })
 }
 
-module.exports = {router, addPlayer, addPlayers}
+module.exports = {router, addPlayer, addPlayers ,pushPlayers}
