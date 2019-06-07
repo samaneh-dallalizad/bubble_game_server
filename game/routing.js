@@ -1,6 +1,16 @@
 const { Router } = require('express')
 const gameRouter = new Router()
 
+const searchOffsets = [
+  [0, -1],
+  [-1, -1],
+  [-1, 0],
+  [0, 1],
+  [1, 0],
+  [1, -1]
+];
+let matches = [];
+
 module.exports = function routing (dispatch, bubbles) {
   return gameRouter.post('/shoot', (request, response) => {
     const { angle, shotBubbleColor } = request.body
@@ -36,7 +46,9 @@ function shootBubble(angle, shotBubbleColor, bubbles){
 
     if(hitBubbleColor !== null){
       console.log(shotBubbleColor, 'hits: ', hitBubbleColor);
-      compareColors(hitBubbleColor, shotBubbleColor, row, roundedColumn, bubbles, prevRow, prevColumn)
+      bubbles[prevRow][prevColumn].color = shotBubbleColor;
+      compareNeighbors(shotBubbleColor, prevRow, prevColumn, bubbles);
+      matches.length = 0;
       break;
     }
 
@@ -45,18 +57,32 @@ function shootBubble(angle, shotBubbleColor, bubbles){
   }
 }
 
-function compareColors(hitBubbleColor, shotBubbleColor, row, column, bubbles, prevRow, prevColumn){
-  if(hitBubbleColor === shotBubbleColor){
-    bubbles[row][column].color = null;
-    console.log('hits the same color')
-    // deleteNeightborColors(shotBubbleColor, row, column, bubbles);
-  } else {
-    console.log('hits a different color')
-    if(prevRow === undefined || prevColumn === undefined){
+function compareNeighbors(shotColor, rowHit, columnHit, bubbles){
+  searchOffsets.map(offset => {
+    const [offsetRow, offsetColumn] = offset;
+    const neighborRow = rowHit + offsetRow;
+    const neighborColumn = columnHit + offsetColumn;
+    if(neighborRow < 0 || neighborRow > 10 || neighborColumn < 0 || neighborColumn > 10){
       return;
     }
-    console.log('prev', prevRow, prevColumn)
-    bubbles[prevRow][prevColumn].color = shotBubbleColor;
+
+    const neighborColor = bubbles[neighborRow][neighborColumn].color;
+    console.log(neighborRow, neighborColumn, neighborColor)
+    if(neighborColor === shotColor){
+      const duplicate = matches.some(match => {
+        return match[0] === neighborRow && match[1] === neighborColumn
+      })
+      if(!duplicate){
+        matches.push([neighborRow, neighborColumn]);
+        compareNeighbors(shotColor, neighborRow, neighborColumn, bubbles);
+      }
+    }
+  })
+  if(matches.length > 1){
+    bubbles[rowHit][columnHit].color = null;
+    matches.forEach(match => {
+      bubbles[match[0]][match[1]].color = null;
+    })
   }
 }
 
@@ -64,10 +90,4 @@ function pickNewBubbleColor(bubble){
   const allColors = ['blue', 'red', 'purple', 'green'];
   const randomColor = allColors[Math.floor(Math.random() * 4)];
   bubble.color = randomColor;
-}
-
-function deleteNeightborColors(shotBubbleColor, row, column, bubbles){
-  for(let i=row; i>row; i++){
-
-  }
 }
