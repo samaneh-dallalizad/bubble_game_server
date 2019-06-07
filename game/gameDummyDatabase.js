@@ -118,5 +118,7 @@ module.exports = gameDummyDatabase = {
     ]
   ],
   bubbleToShoot: {color: 'red'},
-  players: []
+  players: [
+    
+   ]
 }
