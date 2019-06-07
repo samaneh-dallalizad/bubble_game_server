@@ -35,23 +35,24 @@ function shootBubble(angle, shotBubbleColor, bubbles){
     hexagonalCorrection = row % 2 * -0.5;
     currentColumn += columnStepSize;
     const roundedColumn = Math.floor(currentColumn + hexagonalCorrection)
+
     if(roundedColumn < 0 || roundedColumn > 10){
+      removeNeighbors(shotBubbleColor, prevRow, prevColumn, bubbles);
       break; //if bubble gets out of the screen break from loop
     }
-    console.log('row and column: ', row, currentColumn, roundedColumn, hexagonalCorrection)
+
+    console.log('row and column: ', row, currentColumn, roundedColumn)
 
     // Check if it hits a ball
     const hitBubble = bubbles[row][roundedColumn];
     const hitBubbleColor = hitBubble.color;
 
     if(hitBubbleColor !== null){
-      console.log(shotBubbleColor, 'hits: ', hitBubbleColor);
-      bubbles[prevRow][prevColumn].color = shotBubbleColor;
-      compareNeighbors(shotBubbleColor, prevRow, prevColumn, bubbles);
-      const playerScore = matches.length * 100;
-      console.log('userScore: ', playerScore);
-      matches.length = 0; 
+      removeNeighbors(shotBubbleColor, prevRow, prevColumn, bubbles);
       break;
+    }
+    if(row === 0 && hitBubbleColor === null){
+      removeNeighbors(shotBubbleColor, row, roundedColumn, bubbles);
     }
 
     prevRow = row;
@@ -64,7 +65,7 @@ function compareNeighbors(shotColor, rowHit, columnHit, bubbles){
     const [offsetRow, offsetColumn] = offset;
     const neighborRow = rowHit + offsetRow;
     const neighborColumn = columnHit + offsetColumn;
-    if(neighborRow < 0 || neighborRow > 10 || neighborColumn < 0 || neighborColumn > 10){
+    if(neighborRow < 0 || neighborRow > 8 || neighborColumn < 0 || neighborColumn > 10){
       return;
     }
 
@@ -85,6 +86,12 @@ function compareNeighbors(shotColor, rowHit, columnHit, bubbles){
       bubbles[match[0]][match[1]].color = null;
     })
   }
+}
+
+function removeNeighbors(shotBubbleColor, row, column, bubbles){
+  bubbles[row][column].color = shotBubbleColor;
+  compareNeighbors(shotBubbleColor, row, column, bubbles);
+  matches.length = 0;
 }
 
 function pickNewBubbleColor(bubble){
